@@ -1,7 +1,7 @@
 # src/SQLiteAdapter.py
 import sqlite3
 
-from Config import Config
+from src.Config import Config
 
 class SQLiteAdapter:
     def __init__(self, config: Config):

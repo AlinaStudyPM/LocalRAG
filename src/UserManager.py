@@ -5,9 +5,9 @@ from typing import Dict, List, Optional
 import sqlite3
 import bcrypt
 
-from Config import Config
-from ChatHistory import ChatHistory
-from ChromaAdapter import ChromaAdapter
+from src.Config import Config
+from src.ChatHistory import ChatHistory
+from src.ChromaAdapter import ChromaAdapter
 
 # TODO: зачем пользователю хранить конфигурацию всей системы?
 # TODO: убрать связь с chroma

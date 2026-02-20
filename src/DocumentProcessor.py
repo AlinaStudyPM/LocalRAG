@@ -7,7 +7,7 @@ import pytesseract
 import tiktoken
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from Config import Config
+from src.Config import Config
 
 def tiktoken_len(text: str) -> int:
     tokenizer = tiktoken.get_encoding("cl100k_base")  # для most modern models (gpt-3.5/4, gemma, mistral)

@@ -1,11 +1,11 @@
 # src/MainView.py
 import uuid
 import tempfile
-import shutil
+#import shutil
 from pathlib import Path
 import flet as ft
 
-from CoreApp import CoreApp
+from src.CoreApp import CoreApp
 
 AppColors = {
     "user_message": ft.Colors.BLUE_ACCENT,
@@ -296,7 +296,7 @@ class MainView(ft.View):
     def do_create_collection(self, e):
         """Создаёт коллекцию и закрывает диалоговое окно."""
         collection_name = self.collection_name_field.value
-        if collection_name != None:
+        if collection_name is not None:
             self.core.create_collection_for_user(self.current_user_id, collection_name)
             self.create_collection_dialog.open = False
             self.load_collections()

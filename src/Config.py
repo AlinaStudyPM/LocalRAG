@@ -1,17 +1,18 @@
-import os
-import pytesseract
+#import os
+#import pytesseract
 
 class Config:
     """
     Класс для задания всех конфигураций
     """
     def __init__(self):
-        self.SQLITE_DB_PATH = "../data/users.db"
-        self.CHROMA_DB_DIR = "../data/chroma_db"
+        self.SQLITE_DB_PATH = "./data/users.db"
+        self.CHROMA_DB_DIR = "./data/chroma_db"
 
-        self.OLLAMA_URL = "http://host.docker.internal:11434" #"http://localhost:11434"
-        self.OLLAMA_MODEL = 'gemma3:4b'
-        self.embeddings_model = 'intfloat/multilingual-e5-small'
+        self.OLLAMA_DOCKER_URL = "http://host.docker.internal:11434"
+        self.OLLAMA_LOCAL_URL = "http://localhost:11434"
+        self.OLLAMA_MODEL = 'moondream:latest'
+        self.OLLAMA_EMBEDDING_MODEL = 'qwen3-embedding:0.6b'
         self.chunk_size: int = 800
         self.chunk_overlap: int = 150
     

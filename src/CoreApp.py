@@ -4,11 +4,11 @@ from typing import List, Optional, Dict
 
 import chromadb
 
-from Config import Config
-from ChromaAdapter import ChromaAdapter
-from DocumentProcessor import DocumentProcessor
-from UserManager import UserManager, User
-from ChatAgent import ChatAgent
+from src.Config import Config
+from src.ChromaAdapter import ChromaAdapter
+from src.DocumentProcessor import DocumentProcessor
+from src.UserManager import UserManager, User
+from src.ChatAgent import ChatAgent
 
 class CoreApp:
     """

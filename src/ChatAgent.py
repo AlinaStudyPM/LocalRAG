@@ -1,10 +1,10 @@
-import json
+# src/ChatAgent.py
 import chromadb    # TODO: убрать связь с Chroma!!!
 import requests
 from typing import List, Dict, Any
 
-from Config import Config
-from ChromaAdapter import ChromaAdapter
+from src.Config import Config
+from src.ChromaAdapter import ChromaAdapter
 
 class ChatAgent:
     """

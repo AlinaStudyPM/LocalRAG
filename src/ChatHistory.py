@@ -3,7 +3,7 @@ from datetime import datetime
 
 import sqlite3
 
-from Config import Config
+from src.Config import Config
 
 class ChatHistory:
     """

@@ -1,6 +1,6 @@
 # src/RAGApp.py
-from CoreApp import CoreApp
-from FletUI import FletUI
+from src.CoreApp import CoreApp
+from src.FletUI import FletUI
 
 class RAGApp:
     """

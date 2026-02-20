@@ -1,6 +1,6 @@
 import flet as ft
-from LoginView import LoginView
-from MainView import MainView
+from src.LoginView import LoginView
+from src.MainView import MainView
 
 class FletUI:
     def __init__(self, core):
