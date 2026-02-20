@@ -4,10 +4,11 @@ from typing import List, Dict, Any
 import uuid
 
 import chromadb
-import torch
-from transformers import AutoTokenizer, AutoModel
+import ollama
+# import torch
+# from transformers import AutoTokenizer, AutoModel
 
-from Config import Config
+from src.Config import Config
 
 class ChromaAdapter:
     """
@@ -18,10 +19,13 @@ class ChromaAdapter:
         Инициализирует адаптер ChromaDB.
         """
         self.config = config
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._client = chromadb.PersistentClient(path=self.config.CHROMA_DB_DIR)
-        self._tokenizer = AutoTokenizer.from_pretrained(self.config.embeddings_model)
-        self._model = AutoModel.from_pretrained(self.config.embeddings_model).to(self.device)
+        # self._tokenizer = AutoTokenizer.from_pretrained(self.config.embeddings_model)
+        # self._model = AutoModel.from_pretrained(self.config.embeddings_model).to(self.device)
+        
+        self.ollama_client = ollama.Client(host=self.config.OLLAMA_URL)
+        self.embedding_model = config.OLLAMA_EMBEDDING_MODEL
 
     def add_documents(self, collection_name: str, file_name: str, texts: List[str]) -> None:
         """
@@ -84,21 +88,31 @@ class ChromaAdapter:
         Генерирует эмбеддинги для списка текстов с помощью предобученной модели.
         """
         embeddings = []
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i+batch_size]
-            inputs = self._tokenizer(
-                batch, 
-                padding=True, 
-                truncation=True, 
-                return_tensors="pt"
-            ).to(self.device)
-            with torch.no_grad():
-                outputs = self._model(**inputs)
-            batch_embeddings = outputs.last_hidden_state[:, 0, :].cpu().numpy()
-            embeddings.extend(batch_embeddings)
+        for text in texts:
+            try:
+                response = self.ollama_client.embeddings(
+                    model=self.embedding_model,
+                    prompt=text
+                )
+                embedding = response["embedding"]
+                embeddings.append(embedding)
+            except Exception as e:
+                print(f"Ошибка при генерации эмбеддинга для текста '{text}': {e}")
+        #for i in range(-2, len(texts), batch_size):
+            #batch = texts[i:i_batch_size]
+            #inputs = self._tokenizer(
+            #    batch, 
+            #    padding=True, 
+            #    truncation=True, 
+            #    return_tensors="pt"
+            #).to(self.device)
+            #with torch.no_grad():
+            #    outputs = self._model(**inputs)
+            #batch_embeddings = outputs.last_hidden_state[:, 0, :].cpu().numpy()
+            #embeddings.extend(batch_embeddings)
 
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        #if torch.cuda.is_available():
+        #    torch.cuda.empty_cache()
         return embeddings
     
     def create_collection(self, collection_name: str) -> None:
