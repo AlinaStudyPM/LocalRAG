@@ -24,7 +24,7 @@ class ChromaAdapter:
         # self._tokenizer = AutoTokenizer.from_pretrained(self.config.embeddings_model)
         # self._model = AutoModel.from_pretrained(self.config.embeddings_model).to(self.device)
         
-        self.ollama_client = ollama.Client(host=self.config.OLLAMA_URL)
+        self.ollama_client = ollama.Client(host=self.config.OLLAMA_LOCAL_URL)
         self.embedding_model = config.OLLAMA_EMBEDDING_MODEL
 
     def add_documents(self, collection_name: str, file_name: str, texts: List[str]) -> None:

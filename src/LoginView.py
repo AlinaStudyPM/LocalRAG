@@ -13,8 +13,8 @@ class LoginView(ft.View):
         self.field_login = ft.TextField(width=300, label="Имя пользователя", on_change=self.validate)
         self.field_password = ft.TextField(width=300, label="Пароль", password=True, on_change=self.validate)
         self.text_error = ft.Text(value="", color='red')
-        self.button_register = ft.ElevatedButton(width=200,text='Создать пользователя', on_click=self.handle_register, disabled=True)
-        self.button_login = ft.ElevatedButton(width=100, text="Войти", on_click=self.handle_login, disabled=True)
+        self.button_register = ft.ElevatedButton(width=200,content='Создать пользователя', on_click=self.handle_register, disabled=True)
+        self.button_login = ft.ElevatedButton(width=100, content="Войти", on_click=self.handle_login, disabled=True)
         
         self.view_registry = ft.Column(
             [

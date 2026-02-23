@@ -47,9 +47,9 @@ class MainView(ft.View):
         self.models_dropdown = ft.Dropdown(
             label="Модель",
             dense=True,
-            width=180,
-            on_change = self.on_model_change
+            width=180
         )
+        self.models_dropdown.on_change = self.on_model_change
         self.message_line = ft.TextField(expand=True, hint_text="Введите сообщение")
         self.message_button = ft.IconButton(ft.Icons.SEND, on_click=self.send_message)
 
@@ -111,9 +111,12 @@ class MainView(ft.View):
         self.pick_files_btn = ft.ElevatedButton(
             "Выбрать файл(ы)…",
             icon=ft.Icons.FOLDER_OPEN,
-            on_click=lambda _: self.file_picker.pick_files(allow_multiple=True)
+            on_click=lambda _: self.file_picker.pick_files(
+                allow_multiple=True,
+                on_result=self.on_file_picked
+            )
         )
-        self.file_picker = ft.FilePicker(on_result=self.on_file_picked)
+        self.file_picker = ft.FilePicker()
         self.files_label = ft.Text("Файлы не выбраны", size=12, italic=True)
         self.button_filepick_cancel = ft.TextButton("Отмена", on_click=self.close_upload_dialog)
         self.button_filepick_upload = ft.ElevatedButton("Загрузить", on_click=self.do_upload_files)
@@ -270,7 +273,7 @@ class MainView(ft.View):
             cb = ft.Button(label=coll_name, value=False)"""
 
 
-    def on_file_picked(self, e: ft.FilePickerResultEvent):
+    def on_file_picked(self, e: ft.FilePickerUploadEvent):
         """Обрабатывает выбранные файлы."""
         if e.files:
             # paths = [f.path for f in e.files]
@@ -334,7 +337,8 @@ class MainView(ft.View):
         self.button_filepick_upload.disabled = True
         self.page.update()
 
-        for file in self.file_picker.result.files: 
+        #for file in self.file_picker.result.files:
+        for file in e.files:
             print(f"Началась загрузка файла {file.path}...")
             if file.path:
                 # на десктопе
@@ -475,7 +479,7 @@ class MainView(ft.View):
         
     def _display_chat_list_item(self, chat_id):
         return ft.TextButton(
-                    text=chat_id, 
+                    content=chat_id, 
                     height=40,
                     on_click=self.on_chat_click,
                     style=self._btn_style(False)
@@ -484,7 +488,7 @@ class MainView(ft.View):
     def _btn_style(self, selected: bool = False):
         """Возвращает стиль кнопки-чата."""
         return ft.ButtonStyle(
-            alignment=ft.alignment.center_left,
+            alignment=ft.Alignment(-1, 0),
             padding=ft.padding.all(10),
             shape=ft.RoundedRectangleBorder(radius=5),
             bgcolor={

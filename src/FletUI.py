@@ -6,10 +6,11 @@ class FletUI:
     def __init__(self, core):
         self.page: ft.Page | None = None
         self.core = core
-        self.file_picker = ft.FilePicker(on_result=self.on_file_picked)
+        self.file_picker = ft.FilePicker()
+        self.file_picker.on_result = self.on_file_picked
         # self.upload_file = FileUploadView()
 
-    def on_file_picked(self, e: ft.FilePickerResultEvent):
+    def on_file_picked(self, e: ft.FilePickerUploadEvent):
         """Общий обработчик для всех загрузок файлов."""
         if hasattr(self.page, "active_view") and hasattr(self.page.active_view, "on_file_picked"):
             self.page.active_view.on_file_picked(e)
