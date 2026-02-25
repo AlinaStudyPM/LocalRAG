@@ -10,5 +10,8 @@ class RAGApp:
         self.core = CoreApp()
         self.ui = FletUI(core=self.core)
 
-    def run(self):
-        self.ui.run()
+    def run_web(self):
+        self.ui.run_web()
+
+    def run_desktop(self):
+        self.ui.run_desktop()

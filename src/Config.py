@@ -8,6 +8,7 @@ class Config:
     def __init__(self):
         self.SQLITE_DB_PATH = "./data/users.db"
         self.CHROMA_DB_DIR = "./data/chroma_db"
+        self.UPLOAD_DIR = "./data/upload"
 
         self.OLLAMA_DOCKER_URL = "http://host.docker.internal:11434"
         self.OLLAMA_LOCAL_URL = "http://localhost:11434"

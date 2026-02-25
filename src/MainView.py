@@ -4,8 +4,10 @@ import tempfile
 #import shutil
 from pathlib import Path
 import flet as ft
+import asyncio
 
 from src.CoreApp import CoreApp
+from src.FileUploader import FileUploader
 
 AppColors = {
     "user_message": ft.Colors.BLUE_ACCENT,
@@ -72,7 +74,7 @@ class MainView(ft.View):
         self.list_collections = ft.ListView()
         self.button_new_coll = ft.ElevatedButton("Создать", icon=ft.Icons.ADD, on_click=self.on_create_collection)
         self.button_download = ft.ElevatedButton("Загрузить", icon=ft.Icons.UPLOAD_FILE, on_click=self.on_upload_file)
-        self.button_all_upload = ft.ElevatedButton("Загрузить тестовые файлы", on_click=self.test_upload_files)
+        #self.button_all_upload = ft.ElevatedButton("Загрузить тестовые файлы", on_click=self.test_upload_files)
         self.text_list_files = ft.Column(spacing=2)
         self.collections_box = ft.Container(
             content=ft.Column([
@@ -80,7 +82,7 @@ class MainView(ft.View):
                 self.list_collections,
                 self.button_new_coll,
                 self.button_download,
-                self.button_all_upload,
+                #self.button_all_upload,
                 #self.text_list_files
             ], spacing=5, horizontal_alignment=ft.CrossAxisAlignment.STRETCH),
             width=200,
@@ -111,12 +113,8 @@ class MainView(ft.View):
         self.pick_files_btn = ft.ElevatedButton(
             "Выбрать файл(ы)…",
             icon=ft.Icons.FOLDER_OPEN,
-            on_click=lambda _: self.file_picker.pick_files(
-                allow_multiple=True,
-                on_result=self.on_file_picked
-            )
+            on_click=self.open_pickfiles
         )
-        self.file_picker = ft.FilePicker()
         self.files_label = ft.Text("Файлы не выбраны", size=12, italic=True)
         self.button_filepick_cancel = ft.TextButton("Отмена", on_click=self.close_upload_dialog)
         self.button_filepick_upload = ft.ElevatedButton("Загрузить", on_click=self.do_upload_files)
@@ -156,6 +154,7 @@ class MainView(ft.View):
         # current_user.load_chats()
         self.current_user_id = current_user.user_id
         self.current_chat_id = None
+        self.file_uploader = FileUploader(self.page, core.config.UPLOAD_DIR)
 
         self.message_line.disabled = True
         self.message_button.disabled = True
@@ -165,7 +164,6 @@ class MainView(ft.View):
         self.load_models()
         self.load_collections()
 
-        self.page.overlay.append(self.file_picker)
         self.page.overlay.append(self.create_collection_dialog)
         self.page.overlay.append(self.upload_dialog)
 
@@ -204,7 +202,7 @@ class MainView(ft.View):
 
     # Выбор чата
     def on_chat_click(self, e: ft.ControlEvent):
-        chat_id = e.control.text
+        chat_id = e.control.content
         self.current_chat_id = chat_id
 
         # Меняем подсветку
@@ -225,7 +223,7 @@ class MainView(ft.View):
             self.message_list.controls.append(
                 self._display_message(msg["role"], msg["content"])
             )
-        self.message_list.scroll_to(delta=-1)
+        asyncio.create_task(self.message_list.scroll_to(delta=-1))
         self.message_list.update()
         
     def load_models(self):
@@ -271,6 +269,17 @@ class MainView(ft.View):
         self.list_collections.controls.clear()
         for coll_name in collections.keys():
             cb = ft.Button(label=coll_name, value=False)"""
+
+    async def open_pickfiles(self, e: ft.ControlEvent):
+        """Открывает окно файлового менеджера для загрузки файлов"""
+        await self.file_uploader.pick_files()
+        selected_files: Liat[ft.FilePickerFile] = self.file_uploader.get_files()
+        if len(selected_files) > 0:
+            names = [f.name for f in selected_files]
+            self.files_label.value = f"Выбрано: {', '.join(names)}"
+        else:
+            self.files_label.value = "Файлы не выбраны"
+        self.upload_dialog.update()
 
 
     def on_file_picked(self, e: ft.FilePickerUploadEvent):
@@ -323,15 +332,28 @@ class MainView(ft.View):
         self.upload_dialog.open = False
         self.page.update()
 
+    """
     def test_upload_files(self, e):
         self.button_all_upload.disabled = True
         self.page.update()
         self.core.upload_directory_for_user(self.current_user_id, 'test')
         self.button_all_upload.disabled = False
         self.page.update()
+    """
 
-    def do_upload_files(self, e):
+    async def do_upload_files(self, e):
+        self.button_filepick_cancel.disabled = True
+        self.button_filepick_upload.disabled = True
+        self.page.update()
+
+        await self.file_uploader.upload_files()
+
+        self.upload_dialog.open = False
+        self.button_filepick_cancel.disabled = False
+        self.button_filepick_upload.disabled = False
+        self.page.update()
         return
+
         collection = self.upload_collection_dd.value
         self.button_filepick_cancel.disabled = True
         self.button_filepick_upload.disabled = True

@@ -13,7 +13,7 @@ class LoginView(ft.View):
         self.field_login = ft.TextField(width=300, label="Имя пользователя", on_change=self.validate)
         self.field_password = ft.TextField(width=300, label="Пароль", password=True, on_change=self.validate)
         self.text_error = ft.Text(value="", color='red')
-        self.button_register = ft.ElevatedButton(width=200,content='Создать пользователя', on_click=self.handle_register, disabled=True)
+        self.button_register = ft.Button(width=210,content='Создать пользователя', on_click=self.handle_register, disabled=True)
         self.button_login = ft.ElevatedButton(width=100, content="Войти", on_click=self.handle_login, disabled=True)
         
         self.view_registry = ft.Column(
@@ -43,12 +43,13 @@ class LoginView(ft.View):
                 ft.NavigationBarDestination(icon=ft.Icons.VERIFIED_USER_OUTLINED, label="Вход"),
                 ft.NavigationBarDestination(icon=ft.Icons.VERIFIED_USER, label="Регистрация")
             ], 
-            on_change=self.navigate
+            on_change=self.navigate,
+            width=400,
         )
 
         self.controls = [
-            self.navigation_bar,
-            self.view_authorization  # по умолчанию
+            # self.navigation_bar,
+            self.view_authorization,
         ]
 
     def navigate(self, e):
@@ -58,10 +59,10 @@ class LoginView(ft.View):
         self.field_password.value = ""
         self.text_error.value = ""
         if chosen == 0: 
-            self.controls.append(self.navigation_bar)
+            #self.controls.append(self.navigation_bar)
             self.controls.append(self.view_authorization)
         elif chosen == 1:
-            self.controls.append(self.navigation_bar)
+            #self.controls.append(self.navigation_bar)
             self.controls.append(self.view_registry)
         self.update()
 

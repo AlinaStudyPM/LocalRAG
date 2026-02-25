@@ -146,7 +146,7 @@ class CoreApp:
             self.chat_agent.model = model_name
         else:
             raise ValueError(f"Model '{model_name}' is not available")
-        
+                
     # === CHAT GENERATION ===
     def generate_response(
         self,

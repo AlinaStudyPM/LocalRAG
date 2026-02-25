@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import Optional, List, Callable
 import flet as ft
 
-from src.CoreApp import CoreApp
-
 import logging
 logger = logging.getLogger(__name__)
 
