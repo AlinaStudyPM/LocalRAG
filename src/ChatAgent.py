@@ -127,12 +127,15 @@ class ChatAgent:
         """
         Возвращает список моделей, установленных в Ollama.
         """
+        models = ["None"]
         try:
             r = requests.get(f"{self.config.OLLAMA_URL}/api/tags", timeout=3)
             r.raise_for_status()
-            return [m["name"] for m in r.json().get("models", [])]
+            for m in r.json().get("models", []):
+                models.append(m)
+            return models
         except Exception:
-            return []
+            return ["None"]
 
     
 
