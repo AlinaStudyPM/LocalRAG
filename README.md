@@ -54,6 +54,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 *Замечание:* для выхода из виртуального окружения используется команда `deactivate`. Для повторного запуска окружения достаточно команды `source .venv/bin/activate`.
+
 8. Установить зависимости
 ```bash
 pip install -e .
