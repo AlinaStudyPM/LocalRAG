@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rag-app"
+version = "2026.04"
+requires-python = ">=3.10"
+description = "Локальное RAG приложение"
+readme = "README.md"
+authors = [{name = "Алина Комарова", email="alina.studyandbooks@gmail.com"}]
+
+dependencies = [
+    "flet>=0.80.0, <0.85.0",
+    "chromadb>=1.0.0,<1.6.0",
+    "ollama>=0.4.0,<0.7.0",
+    "langchain-text-splitters>=1.0.0,<2.0.0",
+    "requests>=2.33.0,<2.34.0",
+    "pdfplumber>=0.11.0,<0.12.0",
+    "pdf2image>=1.17.0,<2.0.0",
+    "pytesseract>=0.3.13,<1.0.0",
+    "tiktoken>=0.12.0,<1.0.0",
+    "bcrypt>=4.0.0,<6.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+   "pytest==9.0.2",
+   "ruff>=0.4.0,<1.0.0",
+]
+
+[project.scripts]
+rag-cli = "src.entrypoints.cli:main"
+rag-web = "src.entrypoints.web:main"  
+rag-desktop = "src.entrypoints.desktop:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

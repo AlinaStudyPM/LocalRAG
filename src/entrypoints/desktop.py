@@ -1,7 +1,7 @@
-# main_desktop.py
+# src/entrypoints/desktop.py
 from src.RAGApp import RAGApp
 
-if __name__ == "__main__":
+def main():
     app = RAGApp()
     app.run_desktop()
 
