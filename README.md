@@ -41,6 +41,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ```bash
 ollama pull llama3.2
 ```
+Список доступных моделей можно поссмотреть на официальном [сайте](https://ollama.com/library).
 #### Запуск кода
 6. Склонировать репозиторий
 ```bash
@@ -82,6 +83,7 @@ irm https://ollama.com/install.ps1 | iex
 ```powershell  
 ollama pull llama3.2  
 ```
+Список доступных моделей можно поссмотреть на официальном [сайте](https://ollama.com/library).
 #### Запуск кода
 6. Склонировать репозиторий
 ```powershell
