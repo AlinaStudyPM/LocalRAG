@@ -66,32 +66,33 @@ irm get.scoop.sh | iex
 ```powershell
 scoop install poppler tesseract
 ```
-3. Установить необходимые языки для Tesseract. Для этого необходимо перейти в [репозиторий](https://github.com/tesseract-ocr/tessdata/), и скачать файлы `eng.traineddata` и `rus.traineddata`для английского и русского языков соответсвенно. После поместить их в папку `~\scoop\apps\tesseract\current\tessdata`. После этого команда `tesseract --list-langs` должна показать в терминале `eng` и `rus`.
+3. Установить необходимые языки для Tesseract. Для этого необходимо перейти в [репозиторий](https://github.com/tesseract-ocr/tessdata/), и скачать файлы `eng.traineddata` и `rus.traineddata`для английского и русского языков соответственно. После поместить их в папку `~\scoop\apps\tesseract\current\tessdata`. После этого команда `tesseract --list-langs` должна показать в терминале `eng` и `rus`.
 4. Установить Ollama для запуска LLM.  
 ```powershell  
 irm https://ollama.com/install.ps1 | iex
 ```  
-4. Загрузить подходящуюю модель LLM, например:  
+5. Загрузить подходящуюю модель LLM, например:  
 ```powershell  
 ollama pull llama3.2  
 ```
 #### Запуск кода
-5. Склонировать репозиторий
+6. Склонировать репозиторий
 ```powershell
 git clone https://github.com/AlinaStudyPM/7_semester_coursework.git
 cd 7_semester_coursework
 ```
-6. Создать виртуальное окружение для проекта и запустить его:
+7. Создать виртуальное окружение для проекта и запустить его:
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
 ```
 *Замечание:* для выхода из виртуального окружения используется команда `deactivate`. Для повторного запуска окружения достаточно команды `.venv\Scripts\activate`.
-7. Установить зависимости
+
+8. Установить зависимости
 ```powershell
 pip install -e .
 ```
-8. Запустить приложение в нужном режиме:
+9. Запустить приложение в нужном режиме:
     - Десктопный: `rag-desktop`
     - Браузерны: `rag-web`
 
