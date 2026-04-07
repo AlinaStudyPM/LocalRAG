@@ -77,9 +77,9 @@ $env:Path="$env:LOCALAPPDATA\Programs\Python\Python312;$env:Path"
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
 ```
-3. Установить Poppler и Tesseract для OCR (распознавания текста из документов):
+3. Установить git, а также Poppler и Tesseract для OCR (распознавания текста из документов):
 ```powershell
-scoop install poppler tesseract
+scoop install git poppler tesseract
 ```
 4. Установить необходимые языки для Tesseract. Для этого необходимо перейти в [репозиторий](https://github.com/tesseract-ocr/tessdata/), и скачать файлы `eng.traineddata` и `rus.traineddata`для английского и русского языков соответственно. После поместить их в папку `~\scoop\apps\tesseract\current\tessdata`. После этого команда `tesseract --list-langs` должна показать в терминале `eng` и `rus`.
 5. Установить Ollama для запуска LLM.  
