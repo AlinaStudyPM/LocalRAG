@@ -56,24 +56,24 @@ pip install -e .
 
 
 ## Запуск на Windows
-
-####  Установка сторонних компонентов
-1. Установить менеджер программ Chocolatey для простой установки остальных компонентов. Подробности о способах установки можно посмотерть [здесь](https://chocolatey.org/install):
+####  Установка сторонних компонентов  
+1. Установить менеджер пакетов Scoop для более простой установки других компонентов:
 ```powershell
-Set-ExecutionPolicy AllSigned -Scope CurrentUser
-iwr -Uri https://community.chocolatey.org/install.ps1 -UseBasicParsing | iex
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
 ```
-2. Установить Tesseract и Poppler для OCR (распознавания текста из документов):
+2. Установить Poppler и Tesseract для OCR (распознавания текста из документов):
 ```powershell
-choco install poppler tesseract tesseract-ocr-rus tesseract-ocr-eng -y
+scoop install poppler tesseract
 ```
-3. Установить Ollama для запуска LLM.
-```powershell
-choco install ollama -y
-```
-4. Загрузить подходящуюю модель LLM, например:
-```powershell
-ollama pull llama3.2
+3. Установить необходимые языки для Tesseract. Для этого необходимо перейти в [репозиторий](https://github.com/tesseract-ocr/tessdata/), и скачать файлы `eng.traineddata` и `rus.traineddata`для английского и русского языков соответсвенно. После поместить их в папку `~\scoop\apps\tesseract\current\tessdata`. После этого команда `tesseract --list-langs` должна показать в терминале `eng` и `rus`.
+4. Установить Ollama для запуска LLM.  
+```powershell  
+irm https://ollama.com/install.ps1 | iex
+```  
+4. Загрузить подходящуюю модель LLM, например:  
+```powershell  
+ollama pull llama3.2  
 ```
 #### Запуск кода
 5. Склонировать репозиторий
