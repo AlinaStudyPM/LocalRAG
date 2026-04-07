@@ -66,43 +66,49 @@ pip install -e .
 
 ## Запуск на Windows
 ####  Установка сторонних компонентов  
-1. Установить менеджер пакетов Scoop для более простой установки других компонентов:
+1. Установить Python. Некоторые библиотеки могут не работать с последней версией Python 3.14, поэтому рекомендуется установить Python 3.12. Это можно сделать при помощи официального [установщика](https://www.python.org/downloads/release/python-31210) (выбрать строку таблицы Windows installer (64-bit), а не install manager). 
+При необходимости нужно добавить Python в системные переменные (если это не произошло по умолчанию):
+```powershell
+$env:Path="$env:LOCALAPPDATA\Programs\Python\Python312;$env:Path"
+```
+
+2. Установить менеджер пакетов Scoop для более простой установки других компонентов:
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
 ```
-2. Установить Poppler и Tesseract для OCR (распознавания текста из документов):
+3. Установить Poppler и Tesseract для OCR (распознавания текста из документов):
 ```powershell
 scoop install poppler tesseract
 ```
-3. Установить необходимые языки для Tesseract. Для этого необходимо перейти в [репозиторий](https://github.com/tesseract-ocr/tessdata/), и скачать файлы `eng.traineddata` и `rus.traineddata`для английского и русского языков соответственно. После поместить их в папку `~\scoop\apps\tesseract\current\tessdata`. После этого команда `tesseract --list-langs` должна показать в терминале `eng` и `rus`.
-4. Установить Ollama для запуска LLM.  
+4. Установить необходимые языки для Tesseract. Для этого необходимо перейти в [репозиторий](https://github.com/tesseract-ocr/tessdata/), и скачать файлы `eng.traineddata` и `rus.traineddata`для английского и русского языков соответственно. После поместить их в папку `~\scoop\apps\tesseract\current\tessdata`. После этого команда `tesseract --list-langs` должна показать в терминале `eng` и `rus`.
+5. Установить Ollama для запуска LLM.  
 ```powershell  
 irm https://ollama.com/install.ps1 | iex
 ```  
-5. Загрузить подходящуюю модель LLM, например:  
+6. Загрузить подходящуюю модель LLM, например:  
 ```powershell  
 ollama pull llama3.2  
 ```
 Список доступных моделей можно поссмотреть на официальном [сайте](https://ollama.com/library).
 #### Запуск кода
-6. Склонировать репозиторий
+7. Склонировать репозиторий
 ```powershell
 git clone https://github.com/AlinaStudyPM/7_semester_coursework.git
 cd 7_semester_coursework
 ```
-7. Создать виртуальное окружение для проекта и запустить его:
+8. Создать виртуальное окружение для проекта и запустить его:
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
 ```
 *Замечание:* для выхода из виртуального окружения используется команда `deactivate`. Для повторного запуска окружения достаточно команды `.venv\Scripts\activate`.
 
-8. Установить зависимости
+9. Установить зависимости
 ```powershell
 pip install -e .
 ```
-9. Запустить приложение в нужном режиме:
+10. Запустить приложение в нужном режиме:
     - Десктопный: `rag-desktop`
     - Браузерны: `rag-web`
 
