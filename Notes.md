@@ -1,7 +1,11 @@
-
+PS C:\> irm get.scoop.sh | iex
+Initializing...
+Running the installer as administrator is disabled by default, see https://github.com/ScoopInstaller/Install#for-admin for details.
+Abort.
 
 ### Poppler path:
 
+```powershell
 Directory:
     C:\ProgramData\chocolatey\lib\poppler\tools\poppler-26.04.0
 
@@ -49,3 +53,4 @@ d-----          4/1/2026   3:29 AM                utils
 -a----          4/1/2026   3:29 AM           2488 README.contributors
 -a----          4/1/2026   3:29 AM           4702 README.md
 -a----          4/1/2026   3:29 AM           2588 _clang-format
+```
