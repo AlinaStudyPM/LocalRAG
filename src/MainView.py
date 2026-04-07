@@ -494,7 +494,7 @@ class MainView(ft.View):
                 bottom=4
             ),
             width=None,
-            alignment=ft.alignment.center_left if not is_user else ft.alignment.center_right,
+            alignment=ft.Alignment.CENTER_LEFT if not is_user else ft.Alignment.CENTER_RIGHT,
             expand=False
         )
         return ft.Row([message_bubble], alignment=alignment)

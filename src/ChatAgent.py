@@ -89,7 +89,7 @@ class ChatAgent:
         # print("\n\n\n")
         try:
             response = requests.post(
-                f"{self.config.OLLAMA_URL}/api/chat",
+                f"{self.config.OLLAMA_LOCAL_URL}/api/chat",
                 json={
                     "model": self.model, 
                     "messages": messages,
@@ -129,10 +129,10 @@ class ChatAgent:
         """
         models = ["None"]
         try:
-            r = requests.get(f"{self.config.OLLAMA_URL}/api/tags", timeout=3)
+            r = requests.get(f"{self.config.OLLAMA_LOCAL_URL}/api/tags", timeout=3)
             r.raise_for_status()
             for m in r.json().get("models", []):
-                models.append(m)
+                models.append(m["name"])
             return models
         except Exception:
             return ["None"]
