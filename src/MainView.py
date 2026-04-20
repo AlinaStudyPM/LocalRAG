@@ -91,7 +91,6 @@ class MainView(ft.View):
 
         self.collection_name_field = ft.TextField(
             label="Название коллекции",
-            # hint_text="Например: Отчёты 2025",
             width=300
         )
         self.create_collection_dialog = ft.AlertDialog(
@@ -307,14 +306,20 @@ class MainView(ft.View):
         self.page.update()
 
     def do_create_collection(self, e):
-        """Создаёт коллекцию и закрывает диалоговое окно."""
-        collection_name = self.collection_name_field.value
-        if collection_name is not None:
+        collection_name = self.collection_name_field.value.strip()
+        try:
             self.core.create_collection_for_user(self.current_user_id, collection_name)
-            self.create_collection_dialog.open = False
-            self.load_collections()
+        except ValueError as ex:
+            self.collection_name_field.error = str(ex)
+            self.collection_name_field.update()
+            self.create_collection_dialog.open = True
             self.page.update()
-
+            #print(str(ex))
+            return 
+        self.create_collection_dialog.open = False
+        self.load_collections()
+        self.page.update()
+        
     def on_upload_file(self, e):
         """Открыть диалог загрузки файла."""
         # заполняем выпадающий список коллекций
@@ -343,17 +348,23 @@ class MainView(ft.View):
     """
 
     async def do_upload_files(self, e):
+        self.button_filepick_upload.content = "Загрузка..."
         self.button_filepick_cancel.disabled = True
         self.button_filepick_upload.disabled = True
         self.page.update()
+        await asyncio.sleep(0)
 
         collection_name = self.upload_collection_dd.value
+        if not collection_name:
+            self.core.create_collection_for_user(self.current_user_id, "Мои документы")
+            collection_name = "Мои документы"
         collection_id = self.core.get_collection_id(self.current_user_id, collection_name)
         await self.file_uploader.upload_and_process(collection_id)
 
         self.upload_dialog.open = False
         self.button_filepick_cancel.disabled = False
         self.button_filepick_upload.disabled = False
+        self.button_filepick_upload.text = "Загрузить"
         self.page.update()
         return
 

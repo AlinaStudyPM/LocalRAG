@@ -106,7 +106,7 @@ class ChatAgent:
         raw_results: List[Dict[str, Any]] = []
         for name in collection_names:
             raw = self.chroma_query(name, question, top_k=top_k)
-            if ["documents"][0]:          # защита от пустой выдачи
+            if raw["documents"][0]:          # защита от пустой выдачи
                 raw_results.append(raw)
         combined = {
             "documents": [[]],

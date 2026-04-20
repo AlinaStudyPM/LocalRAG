@@ -70,22 +70,19 @@ class User:
         """
         Создаёт коллекцию в Chroma и регистрирует её в SQLite.
         """
-        if collection_name not in self.collections.values():
-            collection_id = uuid.uuid4().hex
-            self.chroma_adapter.create_collection(collection_name=collection_id)
-            self.conn_sqlite3.execute(
-                "INSERT INTO user_collections (id, user_id, collection_name) VALUES (?, ?, ?)",
-                (collection_id, self.user_id, collection_name)
-            )
-            self.conn_sqlite3.commit()
-            self.collections[collection_id] = collection_name
-
-    """
-    def get_full_collection_name(self, collection_name: str) -> str:
-        if collection_name not in self.collections:
-            raise ValueError(f"Коллекция '{collection_name}' не принадлежит пользователю {self.user_id}")
-        return f"user_{self.user_id}_{collection_name}"
-    """
+        if not collection_name.strip():
+            raise ValueError("Название коллекции не может быть пустым")
+        if collection_name in self.collections.values():
+            raise ValueError(f"Коллекция '{collection_name}' уже существует")
+        collection_id = uuid.uuid4().hex
+        self.chroma_adapter.create_collection(collection_name=collection_id)
+        self.conn_sqlite3.execute(
+            "INSERT INTO user_collections (id, user_id, collection_name) VALUES (?, ?, ?)",
+            (collection_id, self.user_id, collection_name)
+        )
+        self.conn_sqlite3.commit()
+        self.collections[collection_id] = collection_name
+         
     def get_collection_id(self, collection_name: str) -> str:
         for uuid, name in self.collections.items():
             if name == collection_name:
