@@ -26,6 +26,12 @@ class ChromaAdapter:
         
         self.ollama_client = ollama.Client(host=self.config.OLLAMA_LOCAL_URL)
         self.embedding_model = config.OLLAMA_EMBEDDING_MODEL
+        
+        available_models = [m.model for m in ollama.list().models]
+        if self.embedding_model not in available_models:
+            ollama.pull(self.embedding_model)
+
+
 
     def add_documents(self, collection_name: str, file_name: str, texts: List[str]) -> None:
         """
