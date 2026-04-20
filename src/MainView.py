@@ -7,7 +7,7 @@ import flet as ft
 import asyncio
 
 from src.CoreApp import CoreApp
-from src.FileUploader import FileUploader
+from src.FileUploader import FileUploaderBase, FileUploaderWeb, FileUploaderDesktop
 
 AppColors = {
     "user_message": ft.Colors.BLUE_ACCENT,
@@ -149,13 +149,14 @@ class MainView(ft.View):
             ft.Column([self.header, self.body], expand=True)
         ]
 
-    def start(self, core: CoreApp, current_user):
+    def start(self, core: CoreApp, uploader: FileUploaderBase, current_user):
         self.core = core
+        self.file_uploader = uploader
+        self.file_uploader.set_page(self.page)
         # current_user.load_chats()
         self.current_user_id = current_user.user_id
         self.current_chat_id = None
-        self.file_uploader = FileUploader(self.page, core.config.UPLOAD_DIR)
-
+        
         self.message_line.disabled = True
         self.message_button.disabled = True
         self.update()
@@ -273,7 +274,7 @@ class MainView(ft.View):
     async def open_pickfiles(self, e: ft.ControlEvent):
         """Открывает окно файлового менеджера для загрузки файлов"""
         await self.file_uploader.pick_files()
-        selected_files: Liat[ft.FilePickerFile] = self.file_uploader.get_files()
+        selected_files: List[ft.FilePickerFile] = self.file_uploader.get_selected_files()
         if len(selected_files) > 0:
             names = [f.name for f in selected_files]
             self.files_label.value = f"Выбрано: {', '.join(names)}"
@@ -346,46 +347,14 @@ class MainView(ft.View):
         self.button_filepick_upload.disabled = True
         self.page.update()
 
-        await self.file_uploader.upload_files()
+        collection_name = self.upload_collection_dd.value
+        await self.file_uploader.upload_and_process(collection_name)
 
         self.upload_dialog.open = False
         self.button_filepick_cancel.disabled = False
         self.button_filepick_upload.disabled = False
         self.page.update()
         return
-
-        collection = self.upload_collection_dd.value
-        self.button_filepick_cancel.disabled = True
-        self.button_filepick_upload.disabled = True
-        self.page.update()
-
-        #for file in self.file_picker.result.files:
-        for file in e.files:
-            print(f"Началась загрузка файла {file.path}...")
-            if file.path:
-                # на десктопе
-                file_path = file.path
-                delete_after = False
-            else:
-                # в вебе
-                pdf_bytes = file.get_bytes()
-                suffix = Path(file.name).suffix or ".bin"
-                file_Path = self._save_upload(pdf_bytes, suffix)
-                file_path = str(file_Path)
-                delete_after = True
-
-            self.core.upload_file_for_user(
-                user_id=self.current_user_id,
-                collection_name=collection,
-                file_path=file_path
-            )
-            if delete_after:
-                file_Path.unlink(missing_ok=True)
-            print(f"Файл {file.name} загружен.")
-        self.upload_dialog.open = False
-        self.button_filepick_cancel.disabled = False
-        self.button_filepick_upload.disabled = False
-        self.page.update()
 
     def _save_upload(self, file_bytes: bytes, suffix: str) -> Path:
         """Сохраняет байты во временный файл и возвращает путь."""

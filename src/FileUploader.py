@@ -45,13 +45,15 @@ class FileUploaderWeb(FileUploaderBase):
     Загрузчик файлов для веб-версии.
     Файлы загружаются на сервер, обрабатываются, а потом удаляются.
     """
-    def __init__(self, page: ft.Page, config: Config):
+    def __init__(self, config: Config):
         super().__init__(config)
-        self.page = page
-        self.file_picker = ft.FilePicker()
         self.upload_dir = config.UPLOAD_DIR
         os.makedirs(self.upload_dir, exist_ok=True)
         self._selected_files: List[ft.FilePickerFile] = []
+
+    def set_page(self, page: ft.Page):
+        self.page = page
+        self.file_picker = ft.FilePicker()
 
     async def pick_files(self) -> None:
         """
@@ -117,8 +119,10 @@ class FileUploaderDesktop(FileUploaderBase):
     Загрузчик файлов для десктоп-версии.
     Получает прямой путь к файлу на устройстве и обрабатывает его.
     """
-    def __init__(self, page: ft.Page, config: Config):
+    def __init__(self, config: Config):
         super().__init__(config)
+
+    def set_page(self, page: ft.Page):
         self.page = page
         self.file_picker = ft.FilePicker()
 

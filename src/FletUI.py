@@ -6,9 +6,10 @@ from src.LoginView import LoginView
 from src.MainView import MainView
 
 class FletUI:
-    def __init__(self, core):
+    def __init__(self, core, uploader):
         self.page: ft.Page | None = None
         self.core = core
+        self.uploader = uploader
 
     #=========WEB===================
 
@@ -39,7 +40,7 @@ class FletUI:
         self.page.views.append(main_view)
         self.page.update()
         self.page.active_view = main_view
-        main_view.start(core=self.core, current_user=user)
+        main_view.start(core=self.core, uploader=self.uploader, current_user=user)
 
     
     def main_web(self, page: ft.Page):
@@ -83,9 +84,6 @@ class FletUI:
         self.page.update()
 
         
-
-        
-
     def show_main_desktop(self, user):
         if self.page is None:
             return
@@ -110,7 +108,7 @@ class FletUI:
         self.page.update()        
 
         self.page.active_view = main_view
-        main_view.start(core=self.core, current_user=user)
+        main_view.start(core=self.core, uploader=self.uploader, current_user=user)
 
 
     def main_desktop(self, page: ft.Page):
