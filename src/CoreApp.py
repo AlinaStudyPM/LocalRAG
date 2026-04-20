@@ -74,8 +74,8 @@ class CoreApp:
         collections = user.list_collections()
         result = {}
         for coll in collections:
-            full_coll_name = user.get_full_collection_name(coll)
-            files = self.chroma_adapter.list_files(full_coll_name) # List[str]
+            coll_id = user.get_collection_id(coll)
+            files = self.chroma_adapter.list_files(coll_id) # List[str]
             result[coll] = files
         return result
 
@@ -83,6 +83,11 @@ class CoreApp:
         """Создаёт новую коллекцию"""
         user = self.user_manager.get_user_by_id(user_id)
         user.create_collection(collection_name)
+
+    def get_collection_id(self, user_id: int, collection_name: str) -> str:
+        """Возвращает UUID коллекции по её отображаемому имени."""
+        user = self.user_manager.get_user_by_id(user_id)
+        return user.get_collection_id(collection_name)
 
     def upload_file_for_user(self, user_id: int, collection_name: str, file_path: str, quick: bool = True) -> None:
         chunks = self.doc_processor.process_pdf(file_path, quick)
@@ -112,21 +117,21 @@ class CoreApp:
                 raise FileNotFoundError(f"Папка {dir_path} не найдена.")
             self.create_collection_for_user(user_id, name)
             # print(f"Коллекции: {user.list_collections()}")
-            full_collection_name = user.get_full_collection_name(name)
+            collection_id = user.get_collection_id(name)
 
             for file_name in os.listdir(dir_path):
-                if self.chroma_adapter.is_in_collection(full_collection_name, file_name):
-                    print(f"Файл {file_name} уже есть в коллекции {full_collection_name}.")
+                if self.chroma_adapter.is_in_collection(collection_id, file_name):
+                    print(f"Файл {file_name} уже есть в коллекции {collection_id}.")
                     continue
                 file_path = os.path.join(dir_path, file_name)
                 if file_path.endswith(".pdf"):
                     chunks = self.doc_processor.process_pdf(file_path, quick)
                     self.chroma_adapter.add_documents(
-                        collection_name=full_collection_name,
+                        collection_name=collection_id,
                         file_name=file_name,
                         texts=chunks
                     )
-                print(f"Файл {file_name} загружен успешно в коллекцию {full_collection_name}.")
+                print(f"Файл {file_name} загружен успешно в коллекцию {collection_id}.")
         print("Загрузка файлов завершена!")
         
         
@@ -159,13 +164,13 @@ class CoreApp:
         user = self.user_manager.get_user_by_id(user_id)
         history = self.get_chat_history(user_id, chat_id)
 
-        collection_names = [
-            user.get_full_collection_name(name) for name in collection_names
+        collection_ids = [
+            user.get_collection_id(name) for name in collection_names
         ]
 
         return self.chat_agent.answer_question(
             question=query,
             chat_history=history,
-            collection_names=collection_names
+            collection_names=collection_ids
         )
 

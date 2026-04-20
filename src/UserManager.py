@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 import sqlite3
 import bcrypt
+import uuid
 
 from src.Config import Config
 from src.ChatHistory import ChatHistory
@@ -26,7 +27,7 @@ class User:
         self.username = username
         self.config = config
         self.chats: Dict[str, ChatHistory] = {}  # chat_id -> ChatHistory
-        self.collections: List[str] = []
+        self.collections: Dict[str, str] = {}
 
         self.chroma_adapter = ChromaAdapter(self.config)
 
@@ -45,10 +46,10 @@ class User:
         # Создание таблицы коллекций
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_collections (
+                id TEXT PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 collection_name TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (user_id, collection_name),
                 FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE
             )
         """)
@@ -60,39 +61,40 @@ class User:
         Загружает список названий коллекций пользователя из таблицы `user_collections` в SQLite.
         """
         cursor = self.conn_sqlite3.execute(
-            "SELECT collection_name FROM user_collections WHERE user_id = ?",
+            "SELECT id, collection_name FROM user_collections WHERE user_id = ?",
             (self.user_id,)
         )
-        self.collections = [row[0] for row in cursor.fetchall()]
+        self.collections = {row[0]: row[1] for row in cursor.fetchall()}
 
     def create_collection(self, collection_name: str) -> None:
         """
         Создаёт коллекцию в Chroma и регистрирует её в SQLite.
-
-        Имя в Chroma формируется как `user_{user_id}_{collection_name}`.
         """
-        if collection_name not in self.collections:
-            full_collection_name = f"user_{self.user_id}_{collection_name}"
-            self.chroma_adapter.create_collection(collection_name=full_collection_name)
+        if collection_name not in self.collections.values():
+            collection_id = uuid.uuid4().hex
+            self.chroma_adapter.create_collection(collection_name=collection_id)
             self.conn_sqlite3.execute(
-                "INSERT INTO user_collections (user_id, collection_name) VALUES (?, ?)",
-                (self.user_id, collection_name)
+                "INSERT INTO user_collections (id, user_id, collection_name) VALUES (?, ?, ?)",
+                (collection_id, self.user_id, collection_name)
             )
             self.conn_sqlite3.commit()
-            self.collections.append(collection_name)
+            self.collections[collection_id] = collection_name
 
+    """
     def get_full_collection_name(self, collection_name: str) -> str:
-        """
-        Возвращает полное имя коллекции в Chroma по логическому имени.
-        Проверяет, что коллекция зарегистрирована за пользователем.
-        """
         if collection_name not in self.collections:
             raise ValueError(f"Коллекция '{collection_name}' не принадлежит пользователю {self.user_id}")
         return f"user_{self.user_id}_{collection_name}"
+    """
+    def get_collection_id(self, collection_name: str) -> str:
+        for uuid, name in self.collections.items():
+            if name == collection_name:
+                return uuid
+        raise ValueError(f"Коллекция '{collection_name}' не принадлежит пользователю {self.user_id}")
     
     def list_collections(self) -> List[str]:
         """Возвращает копию списка имён коллекций пользователя."""
-        return self.collections.copy()
+        return list(self.collections.values())  
     
     def load_chats(self) -> None:
         """

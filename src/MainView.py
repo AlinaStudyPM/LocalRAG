@@ -250,7 +250,7 @@ class MainView(ft.View):
         collections = self.core.list_user_collections(self.current_user_id)
         self.list_collections.controls.clear()
         for col in collections:
-            cb = ft.Checkbox(label=col, value=False)
+            cb = ft.Checkbox(label=col, value=True)
             self.list_collections.controls.append(cb)
         
         """
@@ -348,7 +348,8 @@ class MainView(ft.View):
         self.page.update()
 
         collection_name = self.upload_collection_dd.value
-        await self.file_uploader.upload_and_process(collection_name)
+        collection_id = self.core.get_collection_id(self.current_user_id, collection_name)
+        await self.file_uploader.upload_and_process(collection_id)
 
         self.upload_dialog.open = False
         self.button_filepick_cancel.disabled = False
@@ -378,16 +379,10 @@ class MainView(ft.View):
             self._load_chat_history()
 
     # Отправка сообещния
-    def send_message(self, e) -> None:
+    async def send_message(self, e) -> None:
         message = self.message_line.value
         if not message:
-            return
-        
-        # Блокируем поле и кнопку
-        self.message_line.disabled = True
-        self.message_button.disabled = True
-        self.message_line.value = ""
-        self.update()
+            return  
 
         # Сохраняем информацию о текущем сообщении
         self.core.add_message_to_chat(
@@ -397,7 +392,15 @@ class MainView(ft.View):
         self.message_list.controls.append(text_user_message)
         self.message_list.update()
 
-        # 3. Определяем, какие коллекции выбраны
+        # Блокируем поле и кнопку
+        self.message_line.disabled = True
+        self.message_button.disabled = True
+        self.message_line.value = ""
+        self.update()
+
+        await asyncio.sleep(0)
+
+        # Определяем, какие коллекции выбраны
         selected_collections = [
             cb.label for cb in self.list_collections.controls
             if isinstance(cb, ft.Checkbox) and cb.value
