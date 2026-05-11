@@ -187,7 +187,7 @@ class MainView(ft.View):
             new_id = f"chat_{uuid.uuid4().hex[:8]}"
             if self.core.create_chat_for_user(self.current_user_id, chat_id=new_id):
                 user_chats = self.core.list_user_chats(self.current_user_id)
-        self.current_chat_id = user_chats[-1]
+        self.current_chat_id = user_chats[0]
 
         self.dialog_list.content.controls.clear()
         self.dialog_list.content.controls.append(self.button_new_chat)
