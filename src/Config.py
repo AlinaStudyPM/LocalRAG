@@ -31,7 +31,7 @@ class Config:
         self.LOG_TO_SESSION_FILE = True
         self.LOG_TO_CONSOLE = False
         self.LOG_FILE_PATH = "logs/app.log" 
-        self.LOG_SESSION_FILE_PATH = "logs/session.log"
+        self.LOG_SESSION_FILE_PATH = "logs/session.log"        
 
         # Tesseract и Poppler
         #self.poppler_path = r"C:\poppler\poppler-25.07.0\Library\bin"
