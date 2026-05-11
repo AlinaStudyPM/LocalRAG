@@ -138,7 +138,7 @@ class User:
         """
         Возвращает список идентификаторов чатов пользователя.
         """
-        return list(self.chats.keys())
+        return list(self.chats.keys())[::-1]
 
     def close(self):
         """

@@ -28,7 +28,6 @@ class FletUI:
         self.page.update()
     
     def show_main_web(self, user):
-        print("Открываем главное окно")
         if self.page is None:
             return
         
@@ -50,10 +49,11 @@ class FletUI:
 
     def run_web(self):
         os.environ["FLET_SECRET_KEY"] = "my-secret-key-24022026"
+        upload_dir = os.path.abspath(self.core.config.UPLOAD_DIR)
         ft.app(
             self.main_web,
             view=ft.AppView.WEB_BROWSER,
-            upload_dir=self.core.config.UPLOAD_DIR,
+            upload_dir=upload_dir,
             port=8550,           
             host="0.0.0.0"       # важно для Docker!
         )
