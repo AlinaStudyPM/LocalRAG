@@ -82,7 +82,7 @@ class ChatAgent:
 ОТВЕЧАЙ НА ОСНОВЕ ВЫШЕПРИВЕДЕННОЙ ИНФОРМАЦИИ"""
             })
 
-        recent_history = history[-max_history*2:]
+        recent_history = history[-max_history*2:-1]
         messages.extend(recent_history)
         messages.append({"role": "user", "content": input_text})
         # for m in messages:
