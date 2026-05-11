@@ -17,9 +17,10 @@ class ChatAgent:
 
     def chroma_query(self, collection_name: str, searched_text: str, top_k: int = 10):
         query_embedding = self.chroma_adapter.generate_embeddings([searched_text])[0]
-        db_client = chromadb.PersistentClient(self.config.CHROMA_DB_DIR)
-        collection = db_client.get_or_create_collection(name=collection_name)
-        results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
+        #db_client = chromadb.PersistentClient(self.config.CHROMA_DB_DIR)
+        #collection = db_client.get_or_create_collection(name=collection_name)
+        #results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
+        results = self.chroma_adapter.search(collection_name, searched_text, top_k)
         return results
     
     """
@@ -83,7 +84,7 @@ class ChatAgent:
 
         recent_history = history[-max_history*2:]
         messages.extend(recent_history)
-        # messages.append({"role": "user", "content": input_text})
+        messages.append({"role": "user", "content": input_text})
         # for m in messages:
         #   print(m)
         # print("\n\n\n")
