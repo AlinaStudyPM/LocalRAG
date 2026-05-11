@@ -119,9 +119,28 @@ class ChatAgent:
         #raw_results.sort(key=lambda x: x[1])
         #est_chunks = [txt for txt, _ in raw_results[:top_k]]
 
+        sources = set()
+        if combined["metadatas"][0]:
+            for metadata in combined["metadatas"][0]:
+                source = metadata.get("source", "Неизвестный источник")
+                if source not in sources:
+                    sources.add(source)
+        sources = list(sources)
+
         context = self.format_results(combined, top_k * len(collection_names))
-        print(context)
-        return self.ollama_query(question, chat_history, context)
+
+        answer = self.ollama_query(question, chat_history, context)
+
+        if sources:
+            sources_text = "\n\n Список источников:\n"
+            for i, s in enumerate(sources):
+                if i < len(sources) - 1:
+                    sources_text += f"├─ {s}\n"
+                else:
+                    sources_text += f"└─ {s}"
+            answer += sources_text
+
+        return answer
     
     def list_models(self) -> List[str]:
         """
