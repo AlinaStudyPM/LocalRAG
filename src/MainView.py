@@ -114,7 +114,8 @@ class MainView(ft.View):
             icon=ft.Icons.FOLDER_OPEN,
             on_click=self.open_pickfiles
         )
-        self.files_label = ft.Text("Файлы не выбраны", size=12, italic=True)
+        self.files_label = ft.Text("Файлы не выбраны", size=12, width=300, italic=True)
+        self.process_label = ft.Text("", size=12, width=300)
         self.button_filepick_cancel = ft.TextButton("Отмена", on_click=self.close_upload_dialog)
         self.button_filepick_upload = ft.ElevatedButton("Загрузить", on_click=self.do_upload_files)
         self.upload_dialog = ft.AlertDialog(
@@ -123,8 +124,9 @@ class MainView(ft.View):
             content=ft.Column([
                 self.upload_collection_dd,
                 self.pick_files_btn,
-                self.files_label
-            ], tight=True, spacing=10),
+                self.files_label,
+                self.process_label
+            ], tight=True, spacing=10, width=320),
             actions=[
                 self.button_filepick_cancel,
                 self.button_filepick_upload
@@ -150,8 +152,6 @@ class MainView(ft.View):
 
     def start(self, core: CoreApp, uploader: FileUploaderBase, current_user):
         self.core = core
-        self.file_uploader = uploader
-        self.file_uploader.set_page(self.page)
         # current_user.load_chats()
         self.current_user_id = current_user.user_id
         self.current_chat_id = None
@@ -166,6 +166,9 @@ class MainView(ft.View):
 
         self.page.overlay.append(self.create_collection_dialog)
         self.page.overlay.append(self.upload_dialog)
+
+        self.file_uploader = uploader
+        self.file_uploader.set_page(self.page, self.process_label)
 
         self.message_line.disabled = False
         self.message_button.disabled = False
@@ -365,6 +368,7 @@ class MainView(ft.View):
         self.button_filepick_cancel.disabled = False
         self.button_filepick_upload.disabled = False
         self.button_filepick_upload.text = "Загрузить"
+        self.load_collections()
         self.page.update()
         return
 

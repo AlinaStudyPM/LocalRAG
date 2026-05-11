@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
+import asyncio
 
 from src.Config import Config
 from src.DocumentProcessor import DocumentProcessor
@@ -50,10 +51,19 @@ class FileUploaderWeb(FileUploaderBase):
         self.upload_dir = config.UPLOAD_DIR
         os.makedirs(self.upload_dir, exist_ok=True)
         self._selected_files: List[ft.FilePickerFile] = []
+        self._upload_status: Dict[str, asyncio.Event] = {}
 
-    def set_page(self, page: ft.Page):
+    def set_page(self, page: ft.Page, process_label):
         self.page = page
         self.file_picker = ft.FilePicker()
+        self.process_label = process_label
+
+        def on_upload_progress(e: ft.FilePickerUploadEvent):
+            if e.progress == 1.0:
+                self._upload_status[e.file_name].set()
+            elif e.error:
+                self._upload_status[e.file_name].set()
+        self.file_picker.on_upload = on_upload_progress
 
     async def pick_files(self) -> None:
         """
@@ -81,7 +91,12 @@ class FileUploaderWeb(FileUploaderBase):
         """
         uploaded = []
         for file in self._selected_files:
+            self.process_label.value = "Файлы загружаются..."
+            self.page.update()
             saved_path = await self._upload_file(file)
+            self.process_label.value = "Файлы распознаются..."
+            self.page.update()
+            await asyncio.sleep(0)
             chunks = self.doc_processor.process(str(saved_path))
             self.chroma_adapter.add_documents(
                 collection_name=collection_name,
@@ -94,6 +109,8 @@ class FileUploaderWeb(FileUploaderBase):
                 path=None,
                 size=file.size
             ))
+            self.process_label.value = ""
+            self.page.update()
         self._selected_files = []
         return uploaded
 
@@ -101,7 +118,7 @@ class FileUploaderWeb(FileUploaderBase):
         """
         Получает информацию о выбранном файле и загружает его на сервер.
         """
-        filename = file.name
+        filename = os.path.basename(file.name)
         upload_url = self.page.get_upload_url(
             filename,
             60  # URL действителен 60 секунд
@@ -110,8 +127,10 @@ class FileUploaderWeb(FileUploaderBase):
             name=filename,
             upload_url=upload_url
         )
+        self._upload_status[filename] = asyncio.Event()
         await self.file_picker.upload([upload_file])
-        return Path(self.upload_dir) / filename
+        await self._upload_status[filename].wait()
+        return Path(self.upload_dir).resolve() / filename
 
 
 class FileUploaderDesktop(FileUploaderBase):
@@ -122,9 +141,10 @@ class FileUploaderDesktop(FileUploaderBase):
     def __init__(self, config: Config):
         super().__init__(config)
 
-    def set_page(self, page: ft.Page):
+    def set_page(self, page: ft.Page, process_label):
         self.page = page
         self.file_picker = ft.FilePicker()
+        self.process_label = process_label
 
     async def pick_files(self) -> None:
         """Открывает диалоговое окно для выбора файлов."""
@@ -148,7 +168,13 @@ class FileUploaderDesktop(FileUploaderBase):
         """
         uploaded = []
         for file in self._selected_files:
+            self.process_label.value = "Файлы распознаются..."
+            self.page.update()
+            await asyncio.sleep(0)
             chunks = self.doc_processor.process(file.path)
+            self.process_label.value = "Обновляется база данных..."
+            self.page.update()
+            await asyncio.sleep(0)
             self.chroma_adapter.add_documents(
                 collection_name=collection_name,
                 file_name=file.name,
@@ -160,6 +186,8 @@ class FileUploaderDesktop(FileUploaderBase):
                 size=file.size
             ))
         self._selected_files = []
+        self.process_label.value = ""
+        self.page.update()
         return uploaded
 
 
