@@ -5,8 +5,8 @@ import uuid
 
 import chromadb
 import ollama
-# import torch
-# from transformers import AutoTokenizer, AutoModel
+
+from fastembed import TextEmbedding
 
 from src.Config import Config
 
@@ -19,18 +19,9 @@ class ChromaAdapter:
         Инициализирует адаптер ChromaDB.
         """
         self.config = config
-        # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self._client = chromadb.PersistentClient(path=self.config.CHROMA_DB_DIR)
-        # self._tokenizer = AutoTokenizer.from_pretrained(self.config.embeddings_model)
-        # self._model = AutoModel.from_pretrained(self.config.embeddings_model).to(self.device)
-        
+        self._client = chromadb.PersistentClient(path=self.config.CHROMA_DB_DIR)        
         self.ollama_client = ollama.Client(host=self.config.OLLAMA_LOCAL_URL)
-        self.embedding_model = config.OLLAMA_EMBEDDING_MODEL
-        
-        available_models = [m.model for m in ollama.list().models]
-        if self.embedding_model not in available_models:
-            ollama.pull(self.embedding_model)
-
+        self.embedding_model = TextEmbedding(model_name=config.EMBEDDING_MODEL)
 
 
     def add_documents(self, collection_name: str, file_name: str, texts: List[str]) -> None:
@@ -40,7 +31,6 @@ class ChromaAdapter:
         Генерирует уникальные UUID для каждого документа. Документы помечаются метаданными
         (например, источником — именем файла), что позволяет в дальнейшем фильтровать/удалять по нему.
         """
-        # self.create_collection(collection_name)
         coll = self._client.get_collection(name=collection_name)
         ids = [str(uuid.uuid4()) for _ in range(len(texts))]
         embeddings = self.generate_embeddings(texts)
@@ -52,9 +42,8 @@ class ChromaAdapter:
         ]
         coll.upsert(ids=ids, embeddings=embeddings, metadatas=metadatas, documents=texts)
 
-    # Передавать список коллекций???
-    # Какой тип возвращаемого значения?
     # Реранкер?
+    # Установить нижнюю границу похожести
     def search(self, collection_name: str, query: str, top_k: int = 5) -> Dict[str, Any]:
         """
         Выполняет семантический поиск по коллекции.
@@ -93,32 +82,8 @@ class ChromaAdapter:
         """
         Генерирует эмбеддинги для списка текстов с помощью предобученной модели.
         """
-        embeddings = []
-        for text in texts:
-            try:
-                response = self.ollama_client.embeddings(
-                    model=self.embedding_model,
-                    prompt=text
-                )
-                embedding = response["embedding"]
-                embeddings.append(embedding)
-            except Exception as e:
-                print(f"Ошибка при генерации эмбеддинга для текста '{text}': {e}")
-        #for i in range(-2, len(texts), batch_size):
-            #batch = texts[i:i_batch_size]
-            #inputs = self._tokenizer(
-            #    batch, 
-            #    padding=True, 
-            #    truncation=True, 
-            #    return_tensors="pt"
-            #).to(self.device)
-            #with torch.no_grad():
-            #    outputs = self._model(**inputs)
-            #batch_embeddings = outputs.last_hidden_state[:, 0, :].cpu().numpy()
-            #embeddings.extend(batch_embeddings)
-
-        #if torch.cuda.is_available():
-        #    torch.cuda.empty_cache()
+        embedding_generator = self.embedding_model.embed(texts)
+        embeddings = list(embedding_generator)
         return embeddings
     
     def create_collection(self, collection_name: str) -> None:

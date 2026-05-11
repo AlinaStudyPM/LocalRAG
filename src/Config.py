@@ -19,7 +19,7 @@ class Config:
         self.OLLAMA_DOCKER_URL = os.getenv("OLLAMA_DOCKER_URL")
         self.OLLAMA_LOCAL_URL = os.getenv("OLLAMA_LOCAL_URL")
         self.OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
-        self.OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "qwen3-embedding:0.6b")
+        self.EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
         self.chunk_size = int(os.getenv("CHUNK_SIZE", 800))
         self.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", 150))
         
