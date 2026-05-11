@@ -21,7 +21,10 @@ class ChromaAdapter:
         self.config = config
         self._client = chromadb.PersistentClient(path=self.config.CHROMA_DB_DIR)        
         self.ollama_client = ollama.Client(host=self.config.OLLAMA_LOCAL_URL)
-        self.embedding_model = TextEmbedding(model_name=config.EMBEDDING_MODEL)
+        self.embedding_model = TextEmbedding(
+            model_name=config.EMBEDDING_MODEL,
+            cache_dir="./.fastembed_cache"
+        )
 
 
     def add_documents(self, collection_name: str, file_name: str, texts: List[str]) -> None:
