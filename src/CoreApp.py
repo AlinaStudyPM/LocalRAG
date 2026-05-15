@@ -63,6 +63,10 @@ class CoreApp:
         return chat_history.add_message(role, content)
     
     # === COLLECTIONS ===
+    def get_supported_extensions(self) -> List[str]:
+        """Возвращает список разрешённых расширений файлов."""
+        return self.doc_processor.get_supported_extensions()
+
     def list_user_collections(self, user_id: int) -> List[str]:
         """Возвращает список имён коллекций пользователя"""
         user = self.user_manager.get_user_by_id(user_id)
@@ -99,6 +103,7 @@ class CoreApp:
         # user.add_file_to_collection(collection_name, file_path.name) - не реализовано
 
     # Для промежуточной версии
+    """
     def upload_directory_for_user(self, user_id: int, collection_name: str, quick: bool = False) -> None:
         user = self.user_manager.get_user_by_id(user_id)
         self._client = chromadb.PersistentClient(path=self.config.CHROMA_DB_DIR)
@@ -133,7 +138,7 @@ class CoreApp:
                     )
                 print(f"Файл {file_name} загружен успешно в коллекцию {collection_id}.")
         print("Загрузка файлов завершена!")
-        
+    """
         
     
     # === MODELS ===

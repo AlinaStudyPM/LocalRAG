@@ -12,9 +12,7 @@ class Config:
 
         self.SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "./data/users.db")
         self.CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", "./data/chroma_db")
-        self.UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.abspath("./data/upload"))
-        extensions_str = os.getenv("FILE_EXTENSIONS", "pdf,txt,md")
-        self.FILE_EXTENSIONS = [ext.strip() for ext in extensions_str.split(",")]
+        self.UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.abspath("./data/upload"))        
 
         self.OLLAMA_DOCKER_URL = os.getenv("OLLAMA_DOCKER_URL", "http://host.docker.internal:11434")
         self.OLLAMA_LOCAL_URL = os.getenv("OLLAMA_LOCAL_URL", "http://localhost:11434")

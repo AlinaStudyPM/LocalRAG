@@ -72,7 +72,11 @@ class MainView(ft.View):
         # ----- Collections Select ------
         self.collection_title = ft.Text("Коллекции", size=18, weight="bold")
         self.list_collections = ft.ListView()
-        self.button_new_coll = ft.ElevatedButton("Создать", icon=ft.Icons.ADD, on_click=self.on_create_collection)
+        self.button_new_coll = ft.ElevatedButton("Создать коллекцию", 
+                                                 icon=ft.Icons.ADD, 
+                                                 on_click=self.on_create_collection, 
+                                                 style=ft.ButtonStyle(alignment=ft.Alignment.CENTER)
+                                                 )
         self.button_download = ft.ElevatedButton("Загрузить", icon=ft.Icons.UPLOAD_FILE, on_click=self.on_upload_file)
         #self.button_all_upload = ft.ElevatedButton("Загрузить тестовые файлы", on_click=self.test_upload_files)
         self.text_list_files = ft.Column(spacing=2)

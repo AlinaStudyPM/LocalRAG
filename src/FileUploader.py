@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 import asyncio
 
 from src.Config import Config
@@ -21,6 +21,7 @@ class FileUploaderBase(ABC):
         self.doc_processor = DocumentProcessor(config)
         self.chroma_adapter = ChromaAdapter(config)
         self._selected_files: List = []
+        self._extensions = self.doc_processor.get_supported_extensions()
 
     @abstractmethod
     async def pick_files(self) -> None: ...
@@ -73,7 +74,7 @@ class FileUploaderWeb(FileUploaderBase):
         files = await self.file_picker.pick_files(
             allow_multiple=True,
             dialog_title="Выберите файл(-ы)",
-            allowed_extensions=self.config.FILE_EXTENSIONS,
+            allowed_extensions=self._extensions,
             file_type=ft.FilePickerFileType.CUSTOM
         )
         if files:
@@ -151,7 +152,7 @@ class FileUploaderDesktop(FileUploaderBase):
         files = await self.file_picker.pick_files(
             allow_multiple=True,
             dialog_title="Выберите файл(-ы)",
-            allowed_extensions=self.config.FILE_EXTENSIONS,
+            allowed_extensions=self._extensions,
             file_type=ft.FilePickerFileType.CUSTOM
         )
         if files:
@@ -224,10 +225,10 @@ class FileUploaderConsole(FileUploaderBase):
                 raise FileNotFoundError(f"Файл не найден: {file_path}")
             
             ext = path.suffix.lower().lstrip(".")
-            if ext not in self.config.FILE_EXTENSIONS:
+            if ext not in self._extensions:
                 raise ValueError(
                     f"Неподдерживаемый формат '{ext}'. "
-                    f"Допустимые: {', '.join(self.config.FILE_EXTENSIONS)}"
+                    f"Допустимые: {', '.join(self._extensions)}"
                 )
             
             # Обработка

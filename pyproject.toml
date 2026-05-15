@@ -23,6 +23,9 @@ dependencies = [
     "bcrypt>=4.0.0,<6.0.0",
     "python-dotenv>=1.0.0,<2.0.0",
     "fastembed>=0.7.4,<0.8.0",
+    "odfdo>=3.7,<4.0", 
+    "markitdown[docx,pptx]>=0.0.1a1,<1.0",
+    "charset-normalizer>=3.4.0, <4.0.0"
 ]
 
 [project.optional-dependencies]
