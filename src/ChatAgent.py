@@ -71,16 +71,10 @@ class ChatAgent:
             max_history: int = 2
         ) -> str:
 
-        messages = [{"role": "system", "content": self.config.SYSTEM_PROMPT}]
-
+        system_content = self.config.SYSTEM_PROMPT
         if context:
-            messages.append({
-                "role": "user", 
-                "content": f"""ИСПОЛЬЗУЙ ЭТУ ИНФОРМАЦИЮ ДЛЯ ОТВЕТА:
-{context}
----
-ОТВЕЧАЙ НА ОСНОВЕ ВЫШЕПРИВЕДЕННОЙ ИНФОРМАЦИИ"""
-            })
+            system_content += f"\n\nКОНТЕКСТ ИЗ ДОКУМЕНТОВ:\n{context}"
+        messages = [{"role": "system", "content": system_content}]
 
         recent_history = history[-max_history*2:-1]
         messages.extend(recent_history)
