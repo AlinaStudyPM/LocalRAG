@@ -1,5 +1,4 @@
 # src/ChatAgent.py
-import chromadb    # TODO: убрать связь с Chroma!!!
 import requests
 from typing import List, Dict, Any
 
@@ -15,27 +14,28 @@ class ChatAgent:
         self.model = config.OLLAMA_MODEL
         self.chroma_adapter = chroma_adapter
 
-    def chroma_query(self, collection_name: str, searched_text: str, top_k: int = 10):
-        query_embedding = self.chroma_adapter.generate_embeddings([searched_text])[0]
-        #db_client = chromadb.PersistentClient(self.config.CHROMA_DB_DIR)
-        #collection = db_client.get_or_create_collection(name=collection_name)
-        #results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
-        results = self.chroma_adapter.search(collection_name, searched_text, top_k)
+    def chroma_query(self, collection_name: str, searched_text: str): 
+        results = self.chroma_adapter.search(collection_name, searched_text)
         return results
     
-    """
-    def format_results(self, data: dict, n: int) -> str:
+
+    def format_results(self, data: dict) -> str:
         documents = data['documents'][0]
-        metadatas = data['metadatas'][0]
-        result = [f"Топ {n} подходящих абзацев:", ""]
+        metadatas = data['metadatas'][0] if data.get('metadatas') else [{}] * len(documents)
+        
+        if not documents:
+            return ""
+    
+        lines = ["\n=== РЕЛЕВАНТНАЯ ИНФОРМАЦИЯ ===\n"]
         for i, (doc, meta) in enumerate(zip(documents, metadatas), 1):
             source = meta.get('source', 'Неизвестный источник')
-            result.append(f"{i}) Источник: {source}")
-            result.append(f"    Текст: {doc}")
-            result.append("")
-        return "\n".join(result)
+            lines.append(f"[{i}] Источник: {source}\n{doc}\n")
+        lines.append("=== КОНЕЦ КОНТЕКСТА ===\n")
+        
+        return "\n".join(lines)
+
     """
-    def format_results(self, data: dict, n: int) -> str:
+    def format_results(self, data: dict) -> str:
         documents = data['documents'][0]
         metadatas = data['metadatas'][0] if data.get('metadatas') else [{}] * len(documents)
 
@@ -52,15 +52,13 @@ class ChatAgent:
         
         for source, docs in sources_dict.items():
             context_lines.append(f"\n--- {source.upper()} ---")
-            for i, doc in enumerate(docs[:3], 1):  # Берем до 3 документов из каждого источника
-                # Обрезаем слишком длинные документы
-                if len(doc) > 1000:
-                    doc = doc[:997] + "..."
-                context_lines.append(f"\nФрагмент {i}: {doc}")
+            for doc in docs:
+                context_lines.append(f"\n {doc}")
         
         context_lines.append("\n=== КОНЕЦ КОНТЕКСТА ===\n")
         
         return "\n".join(context_lines)
+    """
     
     def ollama_query(
             self, 
@@ -70,18 +68,23 @@ class ChatAgent:
             temperature: float = 0.7, 
             max_history: int = 2
         ) -> str:
-
+        
         system_content = self.config.SYSTEM_PROMPT
-        if context:
-            system_content += f"\n\nКОНТЕКСТ ИЗ ДОКУМЕНТОВ:\n{context}"
         messages = [{"role": "system", "content": system_content}]
 
         recent_history = history[-max_history*2:-1]
         messages.extend(recent_history)
-        messages.append({"role": "user", "content": input_text})
+
+        user_content = input_text
+        if context:
+            user_content = f"Используй следующий контекст...\n\n{context}\nВопрос: {input_text}"
+        messages.append({"role": "user", "content": user_content})
         # for m in messages:
         #   print(m)
         # print("\n\n\n")
+
+        
+
         try:
             response = requests.post(
                 f"{self.config.OLLAMA_LOCAL_URL}/api/chat",
@@ -97,11 +100,11 @@ class ChatAgent:
         except Exception as e:
             return f"Ошибка при запросе к Ollama: {str(e)}"
     
-    def answer_question(self, question: str, chat_history, collection_names: List[str], top_k: int = 5):
+    def answer_question(self, question: str, chat_history, collection_names: List[str]):
         raw_results: List[Dict[str, Any]] = []
         for name in collection_names:
-            raw = self.chroma_query(name, question, top_k=top_k)
-            if raw["documents"][0]:          # защита от пустой выдачи
+            raw = self.chroma_query(name, question)
+            if raw["documents"][0]:
                 raw_results.append(raw)
         combined = {
             "documents": [[]],
@@ -122,7 +125,7 @@ class ChatAgent:
                     sources.add(source)
         sources = list(sources)
 
-        context = self.format_results(combined, top_k * len(collection_names))
+        context = self.format_results(combined)
 
         answer = self.ollama_query(question, chat_history, context)
 

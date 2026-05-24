@@ -18,8 +18,11 @@ class Config:
         self.OLLAMA_LOCAL_URL = os.getenv("OLLAMA_LOCAL_URL", "http://localhost:11434")
         self.OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
         self.EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+        self.RETRIEVAL_MODEL = os.getenv("RETRIEVAL_MODEL", "jinaai/jina-reranker-v2-base-multilingual") #"BAAI/bge-reranker-base")
         self.chunk_size = int(os.getenv("CHUNK_SIZE", 800))
         self.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", 150))
+        self.top_embed = 15
+        self.top_rerank = 5
         
         prompt_path = os.getenv("SYSTEM_PROMPT_FILE", "config/system_prompt.txt")
         self.SYSTEM_PROMPT = Path(prompt_path).read_text(encoding="utf-8")   
